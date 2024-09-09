@@ -39,16 +39,14 @@ def inference(source, driving, find_best_frame = False, free_view = False, yaw =
 iface = gr.Interface(
     inference, # main function
     inputs = [ 
-        #gr.Image(shape=(255, 255), label='Source Image'), # source image
         gr.Image(width=255, height=255, label='Source Image', type='filepath'), # source image
-        #gr.Video(label='Driving Video', type='mp4'), # driving video
         gr.Video(label='Driving Video', format="mp4"), # driving video
         
         gr.Checkbox(label="fine best frame"),
-        gr.Checkbox(label="free view"),
-        gr.Slider(0, 90, value=0, label="yaw"),
-        gr.Slider(0, 90, value=0, label="pitch"),
-        gr.Slider(0, 90, value=0, label="roll"),
+        gr.Checkbox(label="free view", default=True),
+        gr.Slider(-30, 30, value=0, label="yaw"),
+        gr.Slider(-30, 30, value=0, label="pitch"),
+        gr.Slider(-30, 30, value=0, label="roll"),
         #  gr.Slider(2, 20, value=4, label="Count", info="Choose between 2 and 20"),
     ],
     outputs = [

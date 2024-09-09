@@ -63,7 +63,7 @@ cpu = False
 
 generator, kp_detector, he_estimator = load_checkpoints(config_path=config, checkpoint_path=checkpoint, gen=gen, cpu=cpu)
 
-def inference(source, driving, find_best_frame = False, free_view = False, yaw = None, pitch = None, roll = None, output_name = 'output.mp4',
+def inference(source, driving, find_best_frame_ = False, free_view = False, yaw = None, pitch = None, roll = None, output_name = 'output.mp4',
               audio = True, cpu = False, best_frame = None, relative = True, adapt_scale = True,):
     # source 
     source_image = resize(source, (256, 256))
@@ -86,7 +86,7 @@ def inference(source, driving, find_best_frame = False, free_view = False, yaw =
     estimate_jacobian = config_['model_params']['common_params']['estimate_jacobian']
     print(f'estimate jacobian: {estimate_jacobian}')
 
-    if find_best_frame or best_frame is not None:
+    if find_best_frame_ or best_frame is not None:
         i = best_frame if best_frame is not None else find_best_frame(source_image, driving_video, cpu=cpu)
         print ("Best frame: " + str(i))
         driving_forward = driving_video[i:]
@@ -118,7 +118,7 @@ def inference(source, driving, find_best_frame = False, free_view = False, yaw =
         return f'{output_path}/{output_name}'
 
 @app.post("/inference")
-async def post_inference(source_image: UploadFile = File(...), driving_video: UploadFile = File(...),
+async def create_face_video(source_image: UploadFile = File(...), driving_video: UploadFile = File(...),
                     find_best_frame: bool = Form(...), free_view: bool = Form(...), yaw: float = Form(...),
                     pitch: float = Form(...), roll: float = Form(...), output_name: str = Form(...)
 
@@ -139,8 +139,8 @@ async def post_inference(source_image: UploadFile = File(...), driving_video: Up
     print(source_image_path, driving_video_path, find_best_frame, free_view, yaw, pitch, roll, output_name)
 
     source = imageio.imread(source_image_path)
-    target_video_path = inference(source, driving_video_path, find_best_frame = False, free_view =
-                                  False, yaw = None, pitch = None, roll = None, output_name = 'output.mp4')
+    target_video_path = inference(source, driving_video_path, find_best_frame_ = find_best_frame, free_view =
+                                  free_view, yaw = yaw, pitch = pitch, roll = roll, output_name = 'output.mp4')
 
     target_video_path = '/data/' + output_name
     print(target_video_path)
@@ -149,5 +149,4 @@ async def post_inference(source_image: UploadFile = File(...), driving_video: Up
 
 if __name__ == '__main__':
     import uvicorn
-    #uvicorn.run(app, host='0.0.0.0', port=8888)
     uvicorn.run(app, host='0.0.0.0', port=8887)
