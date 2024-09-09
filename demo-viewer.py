@@ -43,7 +43,7 @@ iface = gr.Interface(
         gr.Video(label='Driving Video', format="mp4"), # driving video
         
         gr.Checkbox(label="fine best frame"),
-        gr.Checkbox(label="free view", default=True),
+        gr.Checkbox(label="free view", value=True),
         gr.Slider(-30, 30, value=0, label="yaw"),
         gr.Slider(-30, 30, value=0, label="pitch"),
         gr.Slider(-30, 30, value=0, label="roll"),
