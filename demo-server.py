@@ -147,6 +147,11 @@ async def create_face_video(source_image: UploadFile = File(...), driving_video:
  
     return JSONResponse(content={'video_path': 'http://127.0.0.1:8887' + target_video_path})
 
+@app.post("/save")
+def save_video_frame(json_data: dict):
+    print(json_data)
+    return JSONResponse(content={'message': 'success'})
+
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(app, host='0.0.0.0', port=8887)

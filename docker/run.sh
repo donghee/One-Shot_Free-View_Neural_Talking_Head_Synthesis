@@ -9,6 +9,8 @@ docker run -it \
     --volume="${PWD}/..:/One-Shot_Free-View_Neural_Talking_Head_Synthesis" \
     --volume="${PWD}/data:/data" \
     --volume="${PWD}/checkpoint:/checkpoint" \
+    --volume="${PWD}/Train_data:/Train_data" \
+    --volume="${PWD}/Test_data:/Test_data" \
     --name one-shot-free-view-neural-talking-head-synthesis \
     --restart unless-stopped \
     --gpus all \
