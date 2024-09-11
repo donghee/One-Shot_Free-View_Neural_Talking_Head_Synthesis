@@ -12,16 +12,12 @@ from datetime import datetime
 
 samples = []
 
-#example_source = os.listdir('asset/source')
 example_source = os.listdir('/data')
 for image in example_source:
-    #samples.append([f'asset/source/{image}', None])
     samples.append([f'/data/{image}', None])
 
-#example_driving = os.listdir('asset/driving')
 example_driving = os.listdir('/data')
 for video in example_driving:
-    #samples.append([None, f'asset/driving/{video}'])
     samples.append([None, f'/data/{video}'])
 
 API_URL = "http://127.0.0.1:8887/inference"
@@ -43,10 +39,6 @@ def inference_video(source, driving, find_best_frame, free_view, yaw, pitch, rol
     with open(inferenced_video, 'wb') as f:
         f.write(requests.get(inferenced_video_url).content)
     return inferenced_video, inferenced_video
-
-#  def yaw(value, key_up_data: gr.KeyUpData):
-#      print("yaw: ", value, "key_up_data: ", key_up_data)
-#      return value
 
 def key_changed(yaw, pitch, roll, key):
     if key == "q":
@@ -88,21 +80,22 @@ def save_video_frame(ai_avatar_video_frame_data, yaw_exp, pitch_exp, roll_exp, u
         user_video_3_img_data = base64.b64decode(user_video_3_frame_data.split(',')[1])
         user_video_3_img = Image.open(io.BytesIO(user_video_3_img_data))
 
-    # mkdir Train_data
+    # save Train_data
     os.makedirs('/Train_data', exist_ok=True)
-    # append yaw_exp, pitch_exp, roll_exp to Train_data/yymmddss_rotation.csv
     now = datetime.now().strftime("%y%m%d%H%M%S")
     csv_file = open(f'/Train_data/rotation.csv', 'a')
     csv_file.write(f'{now}, {roll_exp}, {pitch_exp}, {yaw_exp}\n')
     csv_file.close()
-    # save ai_avatar_img to Train_data/yymmddss_av_img0001.jpg and increment the number if the file already exists
     ai_avatar_img.save(f'/Train_data/{now}_av_img0001.jpg')
-    # save user_video_1_img to Train_data/yymmddss_cam1_img0001.jpg and increment the number if the file already exists
     user_video_1_img.save(f'/Train_data/{now}_cam1_img0001.jpg')
     user_video_2_img.save(f'/Train_data/{now}_cam2_img0001.jpg')
     user_video_3_img.save(f'/Train_data/{now}_cam3_img0001.jpg')
 
     return [np.array(ai_avatar_img), np.array(user_video_1_img), np.array(user_video_2_img), np.array(user_video_3_img)]
+
+def get_latest_video(dir, format):
+    sorted_video_list_by_time = sorted(os.listdir(dir), key=lambda x: os.path.getmtime(os.path.join(dir, x)), reverse=True)
+    return dir + '/' + sorted_video_list_by_time[0]
 
 with gr.Blocks(theme=gr.themes.Soft()) as iface:
     gr.Markdown("# AI Avatar")
@@ -157,12 +150,14 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
                         user_video_2_frame_data = gr.Textbox(visible=False)
                         user_video_3_frame_data = gr.Textbox(visible=False)
 
+            # for keyboard control
             key_press.change(key_changed, inputs=[yaw, pitch, roll, key_press], outputs=[yaw, pitch, roll, yaw_exp, pitch_exp, roll_exp])
             yaw_exp.change(inference_video, [source, driving, find_best_frame, free_view, yaw, pitch, roll], [video_output, ai_avatar_video])
             pitch_exp.change(inference_video, [source, driving, find_best_frame, free_view, yaw, pitch, roll], [video_output, ai_avatar_video])
             roll_exp.change(inference_video, [source, driving, find_best_frame, free_view, yaw, pitch, roll], [video_output, ai_avatar_video])
             submit.click(inference_video, [source, driving, find_best_frame, free_view, yaw, pitch, roll], [video_output, ai_avatar_video])
 
+            # save data for experiment
             save.click(save_video_frame, [ai_avatar_video_frame_data, yaw_exp, pitch_exp, roll_exp, user_video_1_frame_data, user_video_2_frame_data, user_video_3_frame_data], [ai_avatar_video_frame, user_video_1_frame, user_video_2_frame, user_video_3_frame],
                        js="""
                        function(ai_avatar_video_frame_data, yaw_exp, pitch_exp, roll_exp, user_video_1_frame_data, user_video_2_frame_data, user_video_3_frame_data) {
@@ -212,9 +207,10 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
         with gr.Row():
             with gr.Column():
                 gr.Markdown("## AI 아바타 영상")
-                ai_avatar_video_pe = gr.Video(label='AI Avatar Video', format="mp4",
+                pe_video = get_latest_video('/Test_data', 'mp4')
+                ai_avatar_video_pe = gr.Video(label=f'AI Avatar Video: {pe_video}', format="mp4",
                                               elem_id="ai_avatar_video_pe", autoplay=True,
-                                              value="/Test_data/BigBuckBunny.mp4")
+                                              value=pe_video)
 
 
                 gr.Markdown("## 사용자 시선영상")
@@ -239,29 +235,5 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
             });
         }
         """)
-
-
-
-#  iface = gr.Interface(
-#      inference, # main function
-#      inputs = [
-#          gr.Image(width=255, height=255, label='Source Image', type='filepath'), # source image
-#          gr.Video(label='Driving Video', format="mp4"), # driving video
-#
-#          gr.Checkbox(label="fine best frame"),
-#          gr.Checkbox(label="free view", value=True),
-#          gr.Slider(-30, 30, value=0, label="yaw"),
-#          gr.Slider(-30, 30, value=0, label="pitch"),
-#          gr.Slider(-30, 30, value=0, label="roll"),
-#      ],
-#      outputs = [
-#          gr.Video(label='result') # generated video
-#      ],
-#
-#      title = 'Face Vid2Vid Demo',
-#      description = "This app is an unofficial demo web app of the face video2video. The codes are heavily based on this repo, created by zhanglonghao1992",
-#
-#      examples = samples)
-#
 
 iface.launch(share=True, server_name='0.0.0.0', server_port=8889)

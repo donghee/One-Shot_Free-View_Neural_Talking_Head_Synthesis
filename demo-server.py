@@ -98,7 +98,6 @@ def inference(source, driving, find_best_frame_ = False, free_view = False, yaw 
         predictions = make_animation(source_image, driving_video, generator, kp_detector, he_estimator, relative=relative, adapt_movement_scale=adapt_scale, estimate_jacobian=estimate_jacobian, cpu=cpu, free_view=free_view, yaw=yaw, pitch=pitch, roll=roll)
     
     # save video
-    #output_path = 'asset/output'
     output_path = '/data'
     os.makedirs(output_path, exist_ok=True)
     
@@ -146,11 +145,6 @@ async def create_face_video(source_image: UploadFile = File(...), driving_video:
     print(target_video_path)
  
     return JSONResponse(content={'video_path': 'http://127.0.0.1:8887' + target_video_path})
-
-@app.post("/save")
-def save_video_frame(json_data: dict):
-    print(json_data)
-    return JSONResponse(content={'message': 'success'})
 
 if __name__ == '__main__':
     import uvicorn
