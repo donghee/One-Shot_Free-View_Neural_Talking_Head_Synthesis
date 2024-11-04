@@ -1,6 +1,13 @@
 #!/bin/sh
 
+docker stop one-shot-free-view-neural-talking-head-synthesis
+docker rm one-shot-free-view-neural-talking-head-synthesis
+
 xhost +local:root
+
+    #--device=/dev/video0:/dev/video0 \
+    #--device=/dev/video0:/dev/video1 \
+    #--device=/dev/video0:/dev/media0 \
 
 # no gpu
 docker run -it \

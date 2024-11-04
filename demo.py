@@ -184,6 +184,8 @@ def keypoint_transformation(kp_canonical, he, estimate_jacobian=True, free_view=
     return {'value': kp_transformed, 'jacobian': jacobian_transformed}
 
 def make_animation(source_image, driving_video, generator, kp_detector, he_estimator, relative=True, adapt_movement_scale=True, estimate_jacobian=True, cpu=False, free_view=False, yaw=0, pitch=0, roll=0):
+    print('make_animation()')
+    print(f'free_view: {free_view} yaw: {yaw}, pitch: {pitch}, roll: {roll}')
     with torch.no_grad():
         predictions = []
         source = torch.tensor(source_image[np.newaxis].astype(np.float32)).permute(0, 3, 1, 2)

@@ -139,7 +139,7 @@ async def create_face_video(source_image: UploadFile = File(...), driving_video:
 
     source = imageio.imread(source_image_path)
     target_video_path = inference(source, driving_video_path, find_best_frame_ = find_best_frame, free_view =
-                                  free_view, yaw = yaw, pitch = pitch, roll = roll, output_name = 'output.mp4')
+                                  free_view, yaw = yaw, pitch = pitch, roll = roll, output_name = output_name)
 
     target_video_path = '/data/' + output_name
     print(target_video_path)
