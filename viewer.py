@@ -126,6 +126,7 @@ def get_latest_video(dir, format):
 css = """
 #warning {background-color: #FFCCCB}
 .feedback textarea {font-size: 24px !important}
+.server_clock textarea {font-size: 24px !important}
 """
 
 with gr.Blocks(theme=gr.themes.Soft(), css=css) as iface:
@@ -155,6 +156,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css=css) as iface:
         with gr.Row():
             with gr.Column():
                 gr.Markdown("## AI 아바타 영상")
+                server_clock = gr.Textbox(label='Server Clock', elem_classes="server_clock")
                 ai_avatar_video = gr.Video(label='AI Avatar Video', elem_id="ai_avatar_video", autoplay=True, height=640)
                 ai_avatar_video_frame = gr.Image(label='AI Avatar Video Frame', visible=False)
                 ai_avatar_video_frame_data = gr.Textbox(visible=False)
@@ -180,6 +182,9 @@ with gr.Blocks(theme=gr.themes.Soft(), css=css) as iface:
                         user_video_1_frame_data = gr.Textbox(visible=False)
                         user_video_2_frame_data = gr.Textbox(visible=False)
                         user_video_3_frame_data = gr.Textbox(visible=False)
+
+            # Show server clock
+            iface.load(lambda: datetime.now().strftime("%y%m%d%H%M%S"), None, server_clock, every=1)
 
             # for keyboard control
             key_press.change(key_changed, inputs=[yaw, pitch, roll, key_press], outputs=[yaw, pitch, roll, yaw_exp, pitch_exp, roll_exp], show_progress=False)
